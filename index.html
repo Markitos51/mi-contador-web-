@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador Regresivo con Foto y Frase Aleatoria</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Mi Contador">
+<link rel="apple-touch-icon" href="icon-192x192.png"> <meta name="theme-color" content="#ffffff">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Espacio entre el texto y el corazón */
+        }
+
+        .heart-icon {
+            color: #FFD700; /* Color amarillo para el corazón */
+            font-size: 1.2em; /* Tamaño del corazón */
+        }
+
+        #countdown-timer {
+            font-size: 2.2em; /* Tamaño de fuente para el contador */
+            color: #333;
+            margin-bottom: 25px; /* Espacio debajo del contador */
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan en líneas si no caben */
+            gap: 15px; /* Espacio entre los bloques de tiempo */
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px; /* Ancho mínimo para cada unidad de tiempo */
+        }
+
+        .time-value {
+            font-size: 1.5em; /* Tamaño para el número */
+            color: #007bff; /* Color para el número */
+        }
+
+        .time-label {
+            font-size: 0.6em; /* Tamaño para la etiqueta (Días, Horas, etc.) */
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        #photo-container {
+            margin-top: 0;
+            margin-bottom: 20px; /* Espacio entre la foto y la frase */
+        }
+
+        #myPhoto {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-height: 300px; /* Ajusta la altura máxima de la foto */
+            object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+        }
+
+        #random-phrase {
+            font-size: 1.1em;
+            color: #555;
+            font-style: italic;
+            margin-top: 0;
+            min-height: 2em; /* Para evitar saltos si las frases tienen diferentes alturas */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            .heart-icon {
+                font-size: 1em;
+            }
+            #countdown-timer {
+                font-size: 1.8em;
+                gap: 10px;
+            }
+            .time-unit {
+                min-width: 60px;
+            }
+            .time-value {
+                font-size: 1.2em;
+            }
+            .time-label {
+                font-size: 0.55em;
+            }
+            #random-phrase {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Días hasta el 28 de agosto <span class="heart-icon">❤️</span></h1>
+
+        <div id="countdown-timer">
+            <div class="time-unit">
+                <span class="time-value" id="days">00</span>
+                <span class="time-label">Días</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="hours">00</span>
+                <span class="time-label">Horas</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="minutes">00</span>
+                <span class="time-label">Minutos</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="seconds">00</span>
+                <span class="time-label">Segundos</span>
+            </div>
+        </div>
+
+        <div id="photo-container">
+            <img id="myPhoto" src="https://via.placeholder.com/300" alt="Mi Foto">
+        </div>
+
+        <p id="random-phrase">Cargando frase...</p>
+    </div>
+
+    <script>
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const myPhoto = document.getElementById('myPhoto');
+        const randomPhraseEl = document.getElementById('random-phrase');
+
+        // --- OPCIONES DE FOTOS ---
+        // Reemplaza estas URLs con las URLs o rutas de tus 7 fotos.
+        // Si las fotos están en la misma carpeta que este HTML, solo necesitas el nombre del archivo, por ejemplo: "foto1.jpg"
+        const photoOptions = [
+            'foto1.JPG',
+            'foto2.JPG',
+            'foto3.JPG',
+            'foto4.JPG',
+            'foto5.JPG',
+            'foto6.JPG',
+            'foto7.JPG'
+        ];
+
+        // --- OPCIONES DE FRASES ---
+        // Reemplaza estas frases con tus 5 frases deseadas.
+        const phraseOptions = [
+            "Sonrie siempre porque cuando sonries eres la chica más guapa del mundo",
+            "Te quiero mucho Huevito",
+            "Chikilin eres bobi pero te quiero",
+            "Mi bibi guapisima",
+            "Te quiero ♾️ + 1 SIEMPRE"
+        ];
+
+        // Función para seleccionar una foto aleatoria
+        function setRandomPhoto() {
+            const randomIndex = Math.floor(Math.random() * photoOptions.length);
+            myPhoto.src = photoOptions[randomIndex];
+        }
+
+        // Función para seleccionar una frase aleatoria
+        function setRandomPhrase() {
+            const randomIndex = Math.floor(Math.random() * phraseOptions.length);
+            randomPhraseEl.textContent = phraseOptions[randomIndex];
+        }
+
+        // Función para calcular la próxima fecha del 28 de agosto
+        function getNextAugust28th() {
+            const now = new Date();
+            let targetDate = new Date(now.getFullYear(), 7, 28, 0, 0, 0); // Mes 7 es agosto (0-indexado)
+
+            // Si el 28 de agosto de este año ya pasó, apunta al 28 de agosto del próximo año
+            if (now.getTime() > targetDate.getTime()) {
+                targetDate = new Date(now.getFullYear() + 1, 7, 28, 0, 0, 0);
+            }
+            return targetDate;
+        }
+
+        let countdownDate = getNextAugust28th(); // Inicializa la fecha objetivo
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+
+            if (distance < 0) {
+                // Si la cuenta atrás ha terminado, recalcula la fecha para el próximo año
+                countdownDate = getNextAugust28th();
+                // Opcional: podrías mostrar un mensaje breve aquí, como "¡Ya es 28 de agosto!"
+                // y luego forzar una actualización para mostrar la nueva cuenta regresiva.
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000* 60)) / 1000);
+
+            daysEl.textContent = days < 10 ? '0' + days : days;
+            hoursEl.textContent = hours < 10 ? '0' + hours : hours;
+            minutesEl.textContent = minutes < 10 ? '0' + minutes : minutes;
+            secondsEl.textContent = seconds < 10 ? '0' + seconds : seconds;
+        }
+
+        // --- Ejecutar al cargar la página ---
+        setRandomPhoto(); // Establece una foto aleatoria al cargar
+        setRandomPhrase(); // Establece una frase aleatoria al cargar
+        setInterval(updateCountdown, 1000); // Actualizar el contador cada segundo
+        updateCountdown(); // Llamar a la función una vez al inicio para que el contador no empiece vacío
+    </script>
+</body>
+</html>
